@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "module": "commonjs",
+    "target": "ES2022"
+  },
+  "include": ["src/**/*", "bin"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+}
