@@ -4,6 +4,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "declaration": true,
+    "sourceMap": true,
     "module": "commonjs",
     "target": "ES2022"
   },

@@ -1,2 +1,5 @@
 node_modules
 dist
+time-app
+pnh.app.json
+.DS_Store

@@ -1,3 +1,4 @@
-export * from './iFontService';
-export * from './iScreenService';
-export * from './IAppBase';
+export * from "./iFontService";
+export * from "./iScreenService";
+export * from "./iServerService";
+export * from "./IAppBase";
