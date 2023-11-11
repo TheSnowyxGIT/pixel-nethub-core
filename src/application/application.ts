@@ -1,7 +1,7 @@
-import path = require('path');
-import { AppError } from './errors/AppError';
-import { AppBase, AppBaseConstructor, AppStartParams } from './public';
-import { AppMetadata } from './app-metadata';
+import path = require("path");
+import { AppError } from "./errors/AppError";
+import { AppBase, AppBaseConstructor, AppStartParams } from "./public";
+import { AppMetadata } from "./app-metadata";
 
 export class AppInstance {
   static async instantiate(appMetaData: AppMetadata, context: AppStartParams) {
@@ -21,7 +21,7 @@ export class AppInstance {
     try {
       importedObj = await import(path.resolve(this.appMetaData.appPath));
     } catch (e) {
-      throw new AppError('Error loading app');
+      throw new AppError("Error loading app");
     }
     if (importedObj && importedObj.default) {
       importedObj = importedObj.default;
@@ -34,21 +34,10 @@ export class AppInstance {
       return;
     }
     if (!this.appConstructor) {
-      throw new AppError('App not loaded');
+      throw new AppError("App not loaded");
     }
     this.appBaseInstance = new this.appConstructor();
     Object.assign(this.appBaseInstance, context);
-    await this.appBaseInstance.onStart();
-  }
-
-  async stop() {
-    if (this.appBaseInstance === null) {
-      return;
-    }
-    if (!this.appConstructor) {
-      throw new AppError('App not loaded');
-    }
-    await this.appBaseInstance.onStop();
-    this.appBaseInstance = null;
+    await this.appBaseInstance._setup();
   }
 }

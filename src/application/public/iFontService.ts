@@ -1,8 +1,13 @@
-export class FontData {
-  name: string;
+import * as openType from "opentype.js";
+
+export interface Font {
+  fontFamily: string;
+  fontSubfamily: string;
+  sizeMult: number;
+  font: openType.Font;
 }
 
 export interface IFontService {
-  getFont(name: string): Promise<Buffer | null>;
-  getAllFontsData(): Promise<FontData[]>;
+  getLoadedFonts(): Promise<Font[]>;
+  getFont(fontFamily: string | string[], fontSubFamily?: string): Font;
 }

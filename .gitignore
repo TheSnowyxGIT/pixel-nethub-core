@@ -1,5 +1,6 @@
 node_modules
 dist
-time-app
+time-app/
+time-app2/
 pnh.app.json
 .DS_Store
