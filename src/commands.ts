@@ -41,9 +41,10 @@ program
   .description("run an app")
   .argument("<appPath>", "path to app (folder)")
   .option("-c, --config <path>", "path to config file")
+  .option("--not-open-browser", "do not open browser for emulator")
   .action(
     actionRunner(async (appPath, options) => {
-      await executeApplication(appPath, options.config);
+      await executeApplication(appPath, options);
     })
   );
 

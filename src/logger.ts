@@ -1,6 +1,6 @@
-import colors = require('colors');
+import colors = require("colors");
 
-type LogType = 'log' | 'warn' | 'error';
+type LogType = "log" | "warn" | "error";
 
 const colorsByType: Record<LogType, colors.Color> = {
   log: colors.white,
@@ -22,29 +22,29 @@ export default class Logger {
   }
 
   private name: string;
-  constructor(name?: string) {
-    this.name = name || 'Logger';
+  constructor(name?: string, private color: colors.Color = colors.yellow) {
+    this.name = name || "Logger";
   }
 
   private prefix(type: LogType): string {
     return colorsByType[type](
-      `[PNH-CORE] ${process.pid.toString().padEnd(6, ' ')} - ${new Date()
+      `[PNH-CORE] ${process.pid.toString().padEnd(6, " ")} - ${new Date()
         .toLocaleString()
-        .padEnd(24, ' ')} ${type
-        .toUpperCase()
-        .padStart(5, ' ')} ${colors.yellow(`[${this.name}]`)}`,
+        .padEnd(24, " ")} ${type.toUpperCase().padStart(5, " ")} ${this.color(
+        `[${this.name}]`
+      )}`
     );
   }
 
   log(message: string) {
-    console.log(this.prefix('log'), message);
+    console.log(this.prefix("log"), message);
   }
 
   warn(message: string) {
-    console.warn(this.prefix('warn'), message);
+    console.warn(this.prefix("warn"), message);
   }
 
   error(message: string) {
-    console.error(this.prefix('error'), message);
+    console.error(this.prefix("error"), message);
   }
 }

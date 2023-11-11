@@ -1,17 +1,17 @@
-import { Color, Point, SetMatrixOption } from '../application/public';
-import Logger from '../logger';
-import * as pm from 'pixels-matrix';
-import { IScreen } from './screen.interface';
-import colors = require('colors');
-import WSServerScreen from './screens/ws-server.screen';
+import { Color, Point, SetMatrixOption } from "../application/public";
+import Logger from "../logger";
+import * as pm from "pixels-matrix";
+import { IScreen } from "./screen.interface";
+import colors = require("colors");
+import WSServerScreen from "./screens/ws-server.screen";
 
 const registeredScreens: { [key: string]: new (config: unknown) => IScreen } = {
-  'ws-server': WSServerScreen,
+  "ws-server": WSServerScreen,
 };
 
 export default class ScreenService {
   private screens_: IScreen[] = [];
-  private logger = new Logger(ScreenService.name);
+  private logger = new Logger(ScreenService.name, colors.blue);
   private matrix_: pm.PixelMatrix;
 
   private resolution_: Point;
@@ -20,11 +20,11 @@ export default class ScreenService {
   }
 
   constructor(config: unknown) {
-    let screenSize = config['screenSize'];
+    let screenSize = config["screenSize"];
     if (!screenSize) {
       screenSize = [32, 8];
       this.logger.warn(
-        `Screen size not specified. Using default ${screenSize[0]}x${screenSize[1]}`,
+        `Screen size not specified. Using default ${screenSize[0]}x${screenSize[1]}`
       );
     } else {
       this.logger.log(`Screen size: ${screenSize[0]}x${screenSize[1]}`);
@@ -35,45 +35,45 @@ export default class ScreenService {
     };
     this.matrix_ = new pm.PixelMatrix(this.resolution.x, this.resolution.y);
 
-    const screens = config['screens'];
+    const screens = config["screens"];
     if (!screens || screens.length === 0) {
       this.logger.warn(
-        'No screens specified. The service will do nothing without screens',
+        "No screens specified. The service will do nothing without screens"
       );
     } else {
       this.logger.log(`Trying to load ${screens.length} screens...`);
       for (const [index, screen] of Object.entries(screens)) {
-        const screenType = screen['type'];
+        const screenType = screen["type"];
         if (!screenType) {
           this.logger.warn(`Skipping screen [${index}]. Type not specified`);
           continue;
         }
         if (!registeredScreens[screenType]) {
           this.logger.warn(
-            `Skipping screen [${index}]. Type [${screenType}] not registered`,
+            `Skipping screen [${index}]. Type [${screenType}] not registered`
           );
           continue;
         }
-        const screenConfig = screen['config'];
+        const screenConfig = screen["config"];
         if (!screenConfig) {
           this.logger.warn(
-            `Skipping screen [${index}][${screenType}]. Config not specified`,
+            `Skipping screen [${index}][${screenType}]. Config not specified`
           );
           continue;
         }
 
         try {
           const screenInstance = new registeredScreens[screenType](
-            screenConfig,
+            screenConfig
           );
 
           this.screens_.push(screenInstance);
           this.logger.log(
-            `Screen [${index}][${screenType}] ${colors.green('VALID')}`,
+            `Screen [${index}][${screenType}] ${colors.green("VALID")}`
           );
           screenInstance.onLoaded(() => {
             this.logger.log(
-              `Screen [${index}][${screenType}] ${colors.green('LOADED')}`,
+              `Screen [${index}][${screenType}] ${colors.green("LOADED")}`
             );
             this.refresh.bind(this);
           });
@@ -85,7 +85,7 @@ export default class ScreenService {
   }
 
   private getColor(color: Color): pm.Color {
-    if (typeof color === 'string') {
+    if (typeof color === "string") {
       return pm.Color.FromHEX(color);
     } else if (Array.isArray(color)) {
       return new pm.Color(color[0], color[1], color[2]);
@@ -95,7 +95,7 @@ export default class ScreenService {
   }
 
   clear(refresh?: boolean | undefined): void {
-    this.fill('#000000', refresh);
+    this.fill("#000000", refresh);
   }
   fill(color: Color, refresh?: boolean | undefined): void {
     this.matrix_.fillColor(this.getColor(color));
@@ -109,7 +109,7 @@ export default class ScreenService {
     grayScale: number[][],
     color: Color,
     option?: SetMatrixOption | undefined,
-    refresh?: boolean | undefined,
+    refresh?: boolean | undefined
   ): void {
     this.matrix_.setMatrix(grayScale, this.getColor(color), option);
     this.refresh(refresh);
