@@ -1,10 +1,10 @@
-import * as openType from "opentype.js";
+import * as t2m from "text2matrix";
 
 export interface Font {
   fontFamily: string;
   fontSubfamily: string;
   sizeMult: number;
-  font: openType.Font;
+  font: t2m.Font;
 }
 
 export interface IFontService {

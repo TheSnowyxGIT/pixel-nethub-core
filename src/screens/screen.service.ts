@@ -4,8 +4,11 @@ import * as pm from "pixels-matrix";
 import { IScreen } from "./screen.interface";
 import colors = require("colors");
 import WSServerScreen from "./screens/ws-server.screen";
+import { IService } from "../IService";
 
-const registeredScreens: { [key: string]: new (config: unknown) => IScreen } = {
+const registeredScreens: {
+  [key: string]: new (config: unknown, screenSize: [number, number]) => IScreen;
+} = {
   "ws-server": WSServerScreen,
 };
 
@@ -64,7 +67,8 @@ export default class ScreenService {
 
         try {
           const screenInstance = new registeredScreens[screenType](
-            screenConfig
+            screenConfig,
+            [this.resolution.x, this.resolution.y]
           );
 
           this.screens_.push(screenInstance);
@@ -79,6 +83,7 @@ export default class ScreenService {
           });
         } catch (error) {
           // todo
+          throw error;
         }
       }
     }
@@ -88,7 +93,7 @@ export default class ScreenService {
     if (typeof color === "string") {
       return pm.Color.FromHEX(color);
     } else if (Array.isArray(color)) {
-      return new pm.Color(color[0], color[1], color[2]);
+      return new pm.Color(color[0], color[1], color[2], color[3]);
     } else {
       return pm.Color.FromUint32(color);
     }
@@ -99,11 +104,11 @@ export default class ScreenService {
   }
   fill(color: Color, refresh?: boolean | undefined): void {
     this.matrix_.fillColor(this.getColor(color));
-    this.refresh(refresh);
+    this.refresh(refresh || false);
   }
   setPixel(point: Point, color: Color, refresh?: boolean | undefined): void {
     this.matrix_.setColor(point, this.getColor(color));
-    this.refresh(refresh);
+    this.refresh(refresh || false);
   }
   setMatrix(
     grayScale: number[][],
@@ -112,8 +117,9 @@ export default class ScreenService {
     refresh?: boolean | undefined
   ): void {
     this.matrix_.setMatrix(grayScale, this.getColor(color), option);
-    this.refresh(refresh);
+    this.refresh(refresh || false);
   }
+
   refresh(condition?: boolean | undefined): void {
     if (condition || condition === undefined) {
       for (const screen of this.screens_) {

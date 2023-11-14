@@ -1,5 +1,6 @@
 export type SetMatrixOption = {
   xOffset?: number;
+  yOffset?: number;
 };
 
 export interface Point {
@@ -19,7 +20,7 @@ export interface IScreenService {
     grayScale: number[][],
     color: Color,
     option?: SetMatrixOption,
-    refresh?: boolean,
+    refresh?: boolean
   ): void;
   refresh(condition?: boolean): void;
 }

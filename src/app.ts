@@ -26,7 +26,7 @@ export async function executeApplication(appPath: string, options: any) {
   const appMetadata = await AppMetadata.load(appPath);
 
   if (!config.screens || config.screens.length === 0) {
-    const port = 8091;
+    const port = 8990;
     config.screens = [
       {
         type: "ws-server",
@@ -41,14 +41,13 @@ export async function executeApplication(appPath: string, options: any) {
   }
 
   // linker
-  const linkedElt = linkApp(appMetadata, config);
+  const linkedElt = await linkApp(appMetadata, config);
 
+  logger.log("Starting app");
   await AppInstance.instantiate(appMetadata, {
     options: {},
     ...linkedElt,
   });
-
-  logger.log("App started");
 }
 
 function startEmulator(wsPort: number) {
@@ -57,12 +56,18 @@ function startEmulator(wsPort: number) {
   const uiPort = 8989;
   const uiDomain = "localhost";
   logger.log(`Emulator UI available on http://${uiDomain}:${uiPort}`);
-  spawn("npx", ["pnh-emulator"], {
+  const child = spawn("npx", ["pnh-emulator"], {
     env: {
       ...process.env,
       WS_URL: `ws://localhost:${wsPort}`,
       DOMAIN: uiDomain,
       PORT: uiPort.toString(),
     },
+  });
+  child.on("close", (code) => {
+    logger.log(`Emulator exited with code ${code}`);
+  });
+  process.on("exit", function () {
+    child.kill();
   });
 }

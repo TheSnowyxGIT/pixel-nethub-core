@@ -1,6 +1,6 @@
-import { PixelMatrix } from 'pixels-matrix';
-import { IScreen } from '../screen.interface';
-import { WebSocketServer, WebSocket } from 'ws';
+import { PixelMatrix } from "pixels-matrix";
+import { IScreen } from "../screen.interface";
+import { WebSocketServer, WebSocket } from "ws";
 
 export default class WSServerScreen extends IScreen {
   private wss: WebSocketServer;
@@ -8,9 +8,9 @@ export default class WSServerScreen extends IScreen {
   private clients = new Set<WebSocket>();
   private matrix_: PixelMatrix;
 
-  constructor(config: unknown) {
+  constructor(config: unknown, private readonly screenSize: [number, number]) {
     super(WSServerScreen.name);
-    this.port = config['port'];
+    this.port = config["port"];
     if (!this.port) {
       this.port = 3001;
       this.logger.warn(`No port specified. Using default ${this.port}`);
@@ -24,17 +24,23 @@ export default class WSServerScreen extends IScreen {
       this.fn?.();
     }, 100);
 
-    this.wss.on('connection', (ws) => {
-      this.logger.log('Client connected');
+    this.wss.on("connection", (ws) => {
+      this.logger.log("Client connected");
       this.clients.add(ws);
+      ws.send(
+        JSON.stringify({
+          width: this.screenSize[0],
+          height: this.screenSize[1],
+        })
+      );
       this.render(this.matrix_);
 
-      ws.on('close', () => {
-        this.logger.log('Client disconnected');
+      ws.on("close", () => {
+        this.logger.log("Client disconnected");
         this.clients.delete(ws);
       });
 
-      ws.on('error', (error) => {
+      ws.on("error", (error) => {
         this.logger.error(`WebSocket error: ${error.message}`);
       });
     });
@@ -43,9 +49,9 @@ export default class WSServerScreen extends IScreen {
   }
 
   public close(): void {
-    this.logger.log('Closing RemoteWSScreen...');
+    this.logger.log("Closing RemoteWSScreen...");
     this.wss.close(() => {
-      this.logger.log('WebSocket server closed');
+      this.logger.log("WebSocket server closed");
     });
   }
 

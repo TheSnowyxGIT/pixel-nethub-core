@@ -1,13 +1,14 @@
 import { IServerService } from "./iServerService";
 import { Font, IFontService } from "./iFontService";
 import { Color, IScreenService, Point } from "./iScreenService";
-import { text2matrix } from "text2matrix";
+import * as t2m from "text2matrix";
+import { AppError } from "../errors/AppError";
 
 export interface AppStartParams {
   options: any;
   screenService: IScreenService;
   serverService?: IServerService;
-  // fontsService: IFontService;
+  fontsService: IFontService;
 }
 
 export type AppBaseConstructor = new () => AppBase;
@@ -17,6 +18,7 @@ export abstract class AppBase implements AppStartParams {
   fontsService: IFontService;
   serverService?: IServerService;
 
+  private setupFinished = false;
   private loopActivated = false;
   private timeoutId: NodeJS.Timeout | null = null;
   deltaTime = 0;
@@ -25,6 +27,7 @@ export abstract class AppBase implements AppStartParams {
     if (this.loopActivated) {
       this._draw();
     }
+    this.setupFinished = true;
   }
   _draw() {
     if (!this.loopActivated) {
@@ -59,7 +62,9 @@ export abstract class AppBase implements AppStartParams {
 
   loop() {
     this.loopActivated = true;
-    this._draw();
+    if (this.setupFinished) {
+      this._draw();
+    }
   }
 
   noLoop() {
@@ -82,20 +87,57 @@ export abstract class AppBase implements AppStartParams {
     this.screenService.refresh();
   }
 
+  private _fillColor: Color = "#ffffff";
+  fill(color: Color) {
+    this._fillColor = color;
+  }
+
   //* text functions
 
   private _textFont: Font;
   textFont(fontFamily: string | string[], fontSubFamily?: string) {
     this._textFont = this.fontsService.getFont(fontFamily, fontSubFamily);
   }
-  private _textSize: number | string = 10;
+  private _textSize: number = 10;
   textSize(size: number) {
     this._textSize = size;
   }
-  // textBoxSize(text: string) {
-  //   // text2matrix(text);
-  // }
 
-  // }
-  // text(text: string, point: Point) {}
+  textBoxSize(text: string) {
+    if (!this._textFont) {
+      throw new AppError("No font selected");
+    }
+    const textInstance = new t2m.Text(text, this._textFont.font, {
+      fontSize: this._textSize,
+    });
+    return {
+      width: textInstance.width,
+      height: textInstance.metrics.capHeight,
+    };
+  }
+
+  text(text: string, point: Point) {
+    if (!this._textFont) {
+      throw new AppError("No font selected");
+    }
+    const textInstance = new t2m.Text(text, this._textFont.font, {
+      fontSize: this._textSize,
+    });
+    const offset = [
+      point.x - textInstance.pivot.x,
+      point.y - textInstance.pivot.y,
+    ];
+    this.screenService.setMatrix(textInstance.matrix, this._fillColor, {
+      xOffset: offset[0],
+      yOffset: offset[1],
+    });
+    return {
+      x1: offset[0],
+      y1: offset[1],
+      x2: offset[0] + textInstance.width,
+      y2: offset[1] + textInstance.metrics.capHeight,
+      width: textInstance.width,
+      height: textInstance.metrics.capHeight,
+    };
+  }
 }
