@@ -18,6 +18,10 @@ export abstract class AppBase implements AppStartParams {
   fontsService: IFontService;
   serverService?: IServerService;
 
+  close() {
+    process.exit(0);
+  }
+
   private setupFinished = false;
   private loopActivated = false;
   private timeoutId: NodeJS.Timeout | null = null;
