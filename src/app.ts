@@ -64,6 +64,12 @@ function startEmulator(wsPort: number) {
       PORT: uiPort.toString(),
     },
   });
+  child.stdout.on("data", (data) => {
+    logger.log(data.toString());
+  });
+  child.stderr.on("data", (data) => {
+    logger.log(data.toString());
+  });
   child.on("close", (code) => {
     logger.log(`Emulator exited with code ${code}`);
   });
