@@ -45,7 +45,7 @@ export abstract class AppBase implements AppStartParams {
     this.draw();
     this.refresh();
     const timeDiff = Date.now() - time;
-    let timeToWait = Math.max(1000 / 60 - timeDiff, 0);
+    let timeToWait = Math.max(1000 / 30 - timeDiff, 0);
     this.timeoutId = setTimeout(() => {
       this.deltaTime = (Date.now() - time) / 1000;
       this.timeoutId = null;
@@ -106,6 +106,10 @@ export abstract class AppBase implements AppStartParams {
   textSize(size: number) {
     this._textSize = size;
   }
+  private _textLetterSpacing: number = undefined;
+  textLetterSpacing(spacing: number) {
+    this._textLetterSpacing = spacing;
+  }
 
   textBoxSize(text: string) {
     if (!this._textFont) {
@@ -113,6 +117,8 @@ export abstract class AppBase implements AppStartParams {
     }
     const textInstance = new t2m.Text(text, this._textFont.font, {
       fontSize: this._textSize,
+      letterSpacing: this._textLetterSpacing,
+      normalizeSize: false,
     });
     return {
       width: textInstance.width,
@@ -126,6 +132,8 @@ export abstract class AppBase implements AppStartParams {
     }
     const textInstance = new t2m.Text(text, this._textFont.font, {
       fontSize: this._textSize,
+      letterSpacing: this._textLetterSpacing,
+      normalizeSize: false,
     });
     const offset = [
       point.x - textInstance.pivot.x,

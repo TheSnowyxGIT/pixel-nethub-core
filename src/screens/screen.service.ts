@@ -5,11 +5,15 @@ import { IScreen } from "./screen.interface";
 import colors = require("colors");
 import WSServerScreen from "./screens/ws-server.screen";
 import { IService } from "../IService";
+import WSClientScreen from "./screens/ws-client.screen";
+import WSSocketIoClientScreen from "./screens/ws-socketio-client.screen";
 
 const registeredScreens: {
   [key: string]: new (config: unknown, screenSize: [number, number]) => IScreen;
 } = {
   "ws-server": WSServerScreen,
+  "ws-client": WSClientScreen,
+  "ws-socketio-client": WSSocketIoClientScreen,
 };
 
 export default class ScreenService {
@@ -36,7 +40,9 @@ export default class ScreenService {
       x: Number(screenSize[0]),
       y: Number(screenSize[1]),
     };
-    this.matrix_ = new pm.PixelMatrix(this.resolution.x, this.resolution.y);
+    this.matrix_ = new pm.PixelMatrix(this.resolution.x, this.resolution.y, {
+      zigzag: true,
+    });
 
     const screens = config["screens"];
     if (!screens || screens.length === 0) {
@@ -79,7 +85,7 @@ export default class ScreenService {
             this.logger.log(
               `Screen [${index}][${screenType}] ${colors.green("LOADED")}`
             );
-            this.refresh.bind(this);
+            this.refresh();
           });
         } catch (error) {
           // todo

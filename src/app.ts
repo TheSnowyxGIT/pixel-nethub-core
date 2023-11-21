@@ -1,5 +1,3 @@
-import { AppInstance } from "./application/application";
-import ScreenService from "./screens/screen.service";
 import { AppMetadata } from "./application/app-metadata";
 import Logger from "./logger";
 import { CoreError } from "./errors/CoreError";
@@ -7,6 +5,7 @@ import { linkApp } from "./application/app-linker";
 import { existsSync, readFileSync } from "fs";
 import { spawn } from "child_process";
 import colors = require("colors");
+import { AppInstance } from "./application/app-instance";
 
 const logger = new Logger("App");
 
