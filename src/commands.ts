@@ -1,14 +1,8 @@
-import { executeApplication } from "./app";
-
-// executeApplication('../../customApps/time-app', {
-//   screenSize: [32, 8],
-// });
-
 import { Command } from "commander";
-import { validateApp } from "./application/validator/validator.service";
 import { readFileSync } from "fs";
-import { CoreError } from "./errors/CoreError";
-import Logger from "./logger";
+import { CoreError } from "./utils/errors/CoreError";
+import Logger from "./utils/logger";
+import { scanPackage, startPackage } from "./main";
 const program = new Command();
 const logger = new Logger("CORE");
 
@@ -27,12 +21,12 @@ export function actionRunner(fn: (...args) => Promise<any>) {
 program.name("pnh-core").description("todo").version("1.0.0");
 
 program
-  .command("validate")
-  .description("validate an app")
-  .argument("<appPath>", "path to app (folder or zip)")
+  .command("scan")
+  .description("scan a package")
+  .argument("<packagePath>", "path to package (folder or zip)")
   .action(
-    actionRunner(async (str, options) => {
-      validateApp(str);
+    actionRunner(async (packagePath, options) => {
+      await scanPackage(packagePath);
     })
   );
 
@@ -44,7 +38,7 @@ program
   .option("--not-open-browser", "do not open browser for emulator")
   .action(
     actionRunner(async (appPath, options) => {
-      await executeApplication(appPath, options);
+      await startPackage(appPath, options);
     })
   );
 
